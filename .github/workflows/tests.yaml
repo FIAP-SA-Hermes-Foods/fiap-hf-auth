@@ -5,7 +5,7 @@ on: pull_request
 jobs:
 
   build:
-    runs-on: 
+    runs-on: ubuntu
     steps:
     - uses: actions/checkout@v3
 
@@ -19,3 +19,52 @@ jobs:
 
     - name: Test
       run: go test -v -count=1 -failfast ./...
+
+---
+
+name: Deploy Lambda Function
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux, x64]
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Create .env
+      run: |
+         echo "${{ secrets.ENV_FILE }}" | base64 -d - > .env
+
+          if [ -d $HOME/envs ]; then 
+            echo ""
+          else
+            mkdir $HOME/envs
+          fi
+          mv .env $HOME/envs/.env
+      shell: bash
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install awscli -y 
+        sudo apt-get install zip -y
+
+    - name: Zip Lambda code
+      run: |
+        zip -r lambda_function.zip .  
+        # 1. Substitua o "lambda_function.zip" pelo nome que deseja dar ao arquivo
+        # 2. Substitua "." pelo caminho do diretório onde está seu código da função Lambda
+
+
+    - name: Deploy Lambda Function
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: |
+        aws lambda update-function-code --function-name MyLambdaFunction --zip-file fileb://./lambda.zip
+        
