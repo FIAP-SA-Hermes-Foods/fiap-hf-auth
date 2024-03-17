@@ -38,14 +38,14 @@ jobs:
 
     - name: Create .env
       run: |
-         echo "${{ secrets.ENV_FILE }}" | base64 -d - > .env
+         echo "${{ secrets.ENV_AUTH }}" | base64 -d - > .env
 
           if [ -d $HOME/envs ]; then 
             echo ""
           else
             mkdir $HOME/envs
           fi
-          mv .env $HOME/envs/.env
+          mv .env $HOME/envs/.env.auth
       shell: bash
 
     - name: Install dependencies
@@ -56,6 +56,8 @@ jobs:
 
     - name: Zip Lambda code
       run: |
+        cp $HOME/envs/.env.auth .
+        mv .env.auth .env
         zip -r lambda_function.zip .  
         # 1. Substitua o "lambda_function.zip" pelo nome que deseja dar ao arquivo
         # 2. Substitua "." pelo caminho do diretório onde está seu código da função Lambda
