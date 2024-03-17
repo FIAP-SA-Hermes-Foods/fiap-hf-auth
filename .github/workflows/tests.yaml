@@ -56,7 +56,7 @@ jobs:
 
     - name: Zip Lambda code
       run: |
-        GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-w -s" -o bin/hf-auth ./cmd/*.go
+        GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-w -s" -o target/hf-auth ./cmd/*.go
         cp $HOME/envs/.env.auth .
         mv .env.auth .env
         zip -r lambda_function.zip .  
