@@ -31,6 +31,8 @@ jobs:
         sudo apt-get install zip -y
 
     - name: Zip Lambda code
+      env:
+        GOROOT: /usr/local/go
       run: |
         GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-w -s" -o target/hf-auth ./cmd/*.go
         cp $HOME/envs/.env.auth .
