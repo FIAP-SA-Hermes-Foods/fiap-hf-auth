@@ -70,5 +70,4 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: |
-        aws lambda update-function-code --function-name ${{ secrets.FUNCTION_NAME }} --zip-file fileb://./hf_api_gateway_lambda.zip
-        
+        aws lambda update-function-code --function-name hf-api-gateway-func --zip-file fileb://./hf_api_gateway_lambda.zip
