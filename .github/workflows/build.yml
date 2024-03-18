@@ -41,7 +41,7 @@ jobs:
 
     - name: Using config.sh
       env:
-        LAMBDA_EXEC_PERM: ${{ secrets.LAMBDA_EXEC_PERM }}
+        {LAMBDA_EXEC_PERM}: ${{ secrets.LAMBDA_EXEC_PERM }}
       run: |
          chmod +x ./hf-lambda.tf
          chmod +x ./config.sh
