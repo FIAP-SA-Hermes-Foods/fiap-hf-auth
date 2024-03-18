@@ -1,0 +1,72 @@
+name: Deploy Lambda Function
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, linux, x64]
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Create .env
+      run: |
+         echo "${{ secrets.ENV_AUTH }}" | base64 -d - > .env
+
+          if [ -d $HOME/envs ]; then 
+            echo ""
+          else
+            mkdir $HOME/envs
+          fi
+          mv .env $HOME/envs/.env.auth
+      shell: bash
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install awscli -y 
+        sudo apt-get install zip -y
+
+    - name: Zip Lambda code
+      run: |
+        GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-w -s" -o target/hf-auth ./cmd/*.go
+        cp $HOME/envs/.env.auth .
+        mv .env.auth .env
+        zip -r hf_api_gateway_lambda.zip .  
+
+    - name: Using config.sh
+      env:
+        LAMBDA_EXEC_PERM: ${{ secrets.LAMBDA_EXEC_PERM }}
+      run: |
+         chmod +x ./hf-lambda.tf
+         chmod +x ./config.sh
+         ./config.sh
+       
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2.0.3
+      with:
+          terraform_wrapper: false
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Validate
+      run: terraform validate
+
+    - name: Terraform Plan
+      run: terraform plan
+
+    - name: Terraform Apply
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      run: terraform apply -auto-approve
+
+    - name: Deploy Lambda Function
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      run: |
+        aws lambda update-function-code --function-name ${{ secrets.FUNCTION_NAME }} --zip-file fileb://./hf_api_gateway_lambda.zip
+        
