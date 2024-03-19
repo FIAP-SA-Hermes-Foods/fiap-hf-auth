@@ -25,7 +25,10 @@ resource "aws_iam_role" "lambda_exec_role" {
         Principal = {
           Service = "lambda.amazonaws.com"
         },
-        Action   = "lambda:*",
+        Action   = [
+            "sts:AssumeRole"
+            "lambda:*",
+        ]
         Resource = "arn:aws:lambda:*:*:*"      
        }
     ]
