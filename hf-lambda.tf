@@ -25,12 +25,9 @@ resource "aws_iam_role" "lambda_exec_role" {
         Principal = {
           Service = "lambda.amazonaws.com"
         },
-        Resource = "*",
-        Action = [
-            "lambda:InvokeAsync",
-            "lambda:InvokeFunction"
-        ]
-      }
+        Action   = "lambda:*",
+        Resource = "arn:aws:lambda:*:*:*"      
+       }
     ]
   })
 }
