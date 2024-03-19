@@ -13,25 +13,3 @@ resource "aws_lambda_function" "hf_lambda" {
   // Permissões para invocar a função
   role = "{{LAMBDA_EXEC_PERM}}"
 }
-
-// Definição da role (permissões) para a função Lambda
-resource "aws_iam_role" "lambda_exec_role" {
-  name = "lambda-exec-role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect    = "Allow",
-        Principal = {
-          Service = "lambda.amazonaws.com"
-        },
-        Action   = [
-            "sts:AssumeRole",
-            "lambda:CreateFunction",
-            "lambda:UpdateFunctionCode",
-            "lambda:InvokeFunction"
-        ]
-       }
-    ]
-  })
-}
