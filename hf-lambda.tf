@@ -25,34 +25,36 @@ resource "aws_iam_role" "lambda_exec_role" {
         Principal = {
           Service = "lambda.amazonaws.com"
         },
-        Action = "sts:AssumeRole"
+        Resource = "*",
+        Action = [
+            "lambda:InvokeAsync",
+            "lambda:InvokeFunction"
+        ]
       }
     ]
   })
 }
 
-# // Permissões para escrever logs no CloudWatch
-# resource "aws_iam_policy" "lambda_logs_policy" {
-#   name = "lambda-logs-policy"
-#   description = "Policy for writing Lambda logs to CloudWatch"
-#   policy = jsonencode({
-#     Version = "2012-10-17",
-#     Statement = [
-#       {
-#         Effect   = "Allow",
-#         Action   = [
-#           "logs:CreateLogGroup",
-#           "logs:CreateLogStream",
-#           "logs:PutLogEvents"
-#         ],
-#         Resource = "arn:aws:logs:*:*:*"
-#       }
-#     ]
-#   })
-# }
+ resource "aws_iam_policy" "lambda_logs_policy" {
+   name = "lambda-logs-gateway-policy"
+   description = "Policy for writing Lambda logs to CloudWatch"
+   policy = jsonencode({
+     Version = "2012-10-17",
+     Statement = [
+       {
+         Effect   = "Allow",
+         Action   = [
+           "logs:CreateLogGroup",
+           "logs:CreateLogStream",
+           "logs:PutLogEvents"
+         ],
+         Resource = "arn:aws:logs:*:*:*"
+       }
+     ]
+   })
+ }
 
-# // Anexa a política de logs à role da função Lambda
-# resource "aws_iam_role_policy_attachment" "lambda_logs_policy_attachment" {
-#   role       = aws_iam_role.lambda_exec_role.name
-#   policy_arn = aws_iam_policy.lambda_logs_policy.arn
-# }
+ resource "aws_iam_role_policy_attachment" "lambda_logs_policy_attachment" {
+   role       = aws_iam_role.lambda_exec_role.name
+   policy_arn = aws_iam_policy.lambda_logs_policy.arn
+ }
