@@ -27,7 +27,9 @@ resource "aws_iam_role" "lambda_exec_role" {
         },
         Action   = [
             "sts:AssumeRole",
-            "lambda:*"
+            "lambda:CreateFunction",
+            "lambda:UpdateFunctionCode",
+            "lambda:InvokeFunction"
         ]
         Resource = "arn:aws:lambda:*:*:*"      
        }
