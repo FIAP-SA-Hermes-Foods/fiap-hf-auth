@@ -1,6 +1,7 @@
 package web
 
 import (
+	"context"
 	"encoding/json"
 	"fiap-hf-auth/internal/core/application"
 	"fiap-hf-auth/internal/core/domain/entity/dto"
@@ -11,7 +12,7 @@ import (
 )
 
 type HandlerAuth interface {
-	Auth(req awsEvents.APIGatewayProxyRequest) (awsEvents.APIGatewayProxyResponse, error)
+	Auth(ctx context.Context, req awsEvents.APIGatewayProxyRequest) (awsEvents.APIGatewayProxyResponse, error)
 }
 
 type handlerAuth struct {
@@ -22,7 +23,7 @@ func NewHandler(app application.HermesFoodsAuthApp) *handlerAuth {
 	return &handlerAuth{app: app}
 }
 
-func (h *handlerAuth) Auth(req awsEvents.APIGatewayProxyRequest) (awsEvents.APIGatewayProxyResponse, error) {
+func (h *handlerAuth) Auth(ctx context.Context, req awsEvents.APIGatewayProxyRequest) (awsEvents.APIGatewayProxyResponse, error) {
 
 	var in dto.Input
 

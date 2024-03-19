@@ -34,11 +34,11 @@ func (h hermesFoodsAuthApp) AuthUser(in dto.Input) (*dto.Output, error) {
 	}
 
 	if in.User == nil {
-		return &dto.Output{StatusCode: 500, Message: "username or password is incorrect"}, nil
+		return &dto.Output{StatusCode: 401, Message: "username or password is incorrect"}, nil
 	}
 
 	if len(in.User.CPF) == 0 && len(in.User.Email) == 0 {
-		return &dto.Output{StatusCode: 500, Message: "username or password is incorrect"}, nil
+		return &dto.Output{StatusCode: 401, Message: "username or password is incorrect"}, nil
 	}
 
 	var userFound *dto.UserPool
@@ -63,11 +63,14 @@ func (h hermesFoodsAuthApp) AuthUser(in dto.Input) (*dto.Output, error) {
 		return &dto.Output{StatusCode: 404, Message: "user not found, try signup through this link: URL HERE"}, nil
 	}
 
+	if userFound.Password != in.User.Password {
+		return &dto.Output{StatusCode: 401, Message: "username or password is incorrect"}, nil
+	}
+
 	return &dto.Output{StatusCode: 200, Message: "OK"}, nil
 }
 
 func (h hermesFoodsAuthApp) authUserByCPF(in dto.Input) (*dto.UserPool, error) {
-	var userFound *dto.UserPool
 	userCPFNoSQL, err := h.getUserByCPF(in)
 
 	if err != nil {
@@ -80,6 +83,7 @@ func (h hermesFoodsAuthApp) authUserByCPF(in dto.Input) (*dto.UserPool, error) {
 			Name:     userCPFNoSQL.Name,
 			CPF:      userCPFNoSQL.CPF,
 			Email:    userCPFNoSQL.Email,
+			Password: userCPFNoSQL.Password,
 		}
 
 		return out, nil
@@ -95,7 +99,7 @@ func (h hermesFoodsAuthApp) authUserByCPF(in dto.Input) (*dto.UserPool, error) {
 
 	for i := 0; i < len(userList); i++ {
 
-		if userList[i].CPF == userFound.CPF {
+		if userList[i].CPF == in.User.CPF {
 			foundUserPool = &userList[i]
 			break
 		}
@@ -114,13 +118,22 @@ func (h hermesFoodsAuthApp) authUserByCPF(in dto.Input) (*dto.UserPool, error) {
 			Password: in.User.Password,
 		}
 
-		out, err := h.saveUser(saveDbUser)
+		_, err := h.saveUser(saveDbUser)
 
 		if err != nil {
 			return nil, err
 		}
 
-		return out, nil
+		out := dto.UserPool{
+			Username: foundUserPool.Username,
+			Password: in.User.Password,
+			Name:     foundUserPool.Name,
+			CPF:      foundUserPool.CPF,
+			Email:    foundUserPool.Email,
+		}
+
+		return &out, nil
+
 	}
 
 	return nil, nil
@@ -140,6 +153,7 @@ func (h hermesFoodsAuthApp) authUserByEmail(in dto.Input) (*dto.UserPool, error)
 			Name:     userEmailNoSQL.Name,
 			CPF:      userEmailNoSQL.CPF,
 			Email:    userEmailNoSQL.Email,
+			Password: userEmailNoSQL.Password,
 		}
 
 		return out, nil
@@ -174,13 +188,21 @@ func (h hermesFoodsAuthApp) authUserByEmail(in dto.Input) (*dto.UserPool, error)
 			Password: in.User.Password,
 		}
 
-		out, err := h.saveUser(saveDbUser)
+		_, err := h.saveUser(saveDbUser)
 
 		if err != nil {
 			return nil, err
 		}
 
-		return out, nil
+		out := dto.UserPool{
+			Username: foundUserPool.Username,
+			Password: in.User.Password,
+			Name:     foundUserPool.Name,
+			CPF:      foundUserPool.CPF,
+			Email:    foundUserPool.Email,
+		}
+
+		return &out, nil
 	}
 
 	return nil, nil
