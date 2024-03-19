@@ -48,13 +48,8 @@ resource "aws_iam_role" "lambda_exec_role" {
            "logs:CreateLogStream",
            "logs:PutLogEvents"
          ],
-         Resource = "arn:aws:logs:*:*:*"
+         Resource = "*"
        }
      ]
    })
- }
-
- resource "aws_iam_role_policy_attachment" "lambda_logs_policy_attachment" {
-   role       = aws_iam_role.lambda_exec_role.name
-   policy_arn = aws_iam_policy.lambda_logs_policy.arn
- }
+ } 
