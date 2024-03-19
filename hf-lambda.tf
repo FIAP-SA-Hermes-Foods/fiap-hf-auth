@@ -34,22 +34,3 @@ resource "aws_iam_role" "lambda_exec_role" {
     ]
   })
 }
-
- resource "aws_iam_policy" "lambda_logs_policy" {
-   name = "lambda-logs-gateway-policy"
-   description = "Policy for writing Lambda logs to CloudWatch"
-   policy = jsonencode({
-     Version = "2012-10-17",
-     Statement = [
-       {
-         Effect   = "Allow",
-         Action   = [
-           "logs:CreateLogGroup",
-           "logs:CreateLogStream",
-           "logs:PutLogEvents"
-         ],
-         Resource = "*"
-       }
-     ]
-   })
- } 
